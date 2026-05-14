@@ -73,7 +73,7 @@ export default function AboutPage() {
             { t: "24-hour reception", d: "There is always a person at the front desk. Arrive any hour, day or night — your room is ready." },
             { t: "Respect for every guest", d: "Couples, foreign travellers, lone women, senior citizens — every guest is treated with the same dignity." },
             { t: "Local knowledge", d: "Need a doctor, a chemist, a temple, a great south-Indian breakfast? Just ask the receptionist." },
-            { t: "We answer the phone", d: "Call +91 7760107529 or +91 9845983391 — a real person picks up, every time." },
+            { t: "We answer the phone", d: "Call +91 7760107520 or +91 9845983391 — a real person picks up, every time." },
           ].map((c) => (
             <div key={c.t} className="card p-5">
               <h3 className="font-display text-lg font-bold text-ink-900">{c.t}</h3>

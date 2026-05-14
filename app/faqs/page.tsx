@@ -29,7 +29,7 @@ export default function FAQPage() {
       <Section
         eyebrow="Frequently asked questions"
         title="Everything you might want to know"
-        description="Couldn't find your answer? Call us at +91 7760107529 — a real person picks up, 24 hours a day."
+        description="Couldn't find your answer? Call us at +91 7760107520 — a real person picks up, 24 hours a day."
       >
         <div className="grid gap-3">
           {FAQS.map((f) => (
@@ -64,7 +64,7 @@ export default function FAQPage() {
                 Call Reception
               </a>
               <a href={HOTEL.socials.whatsappLink} target="_blank" rel="noopener noreferrer" className="btn-secondary">
-                WhatsApp Owner
+                WhatsApp
               </a>
             </div>
           </div>

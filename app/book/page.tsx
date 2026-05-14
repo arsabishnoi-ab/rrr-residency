@@ -78,7 +78,7 @@ export default function BookPage({
                   rel="noopener noreferrer"
                   className="btn-secondary w-full bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100"
                 >
-                  WhatsApp +91 {HOTEL.contact.phoneSecondary}
+                  WhatsApp +91 {HOTEL.contact.phonePrimary}
                 </a>
               </div>
             </div>

@@ -17,9 +17,9 @@ export const HOTEL = {
     full: "#12, 2nd Main Road, Dispensary Road, near Citizen Hospital, Kalasipalyam, Bangalore, Karnataka 560002, India",
   },
   contact: {
-    phonePrimary: "7760107529",
+    phonePrimary: "7760107520",
     phoneSecondary: "9845983391",
-    whatsapp: "919845983391",
+    whatsapp: "917760107520",
     email: "rrrresidencykpm@gmail.com",
   },
   geo: {
@@ -60,9 +60,9 @@ export const HOTEL = {
     cancellation: "Bookings are non-refundable. Please confirm your dates carefully before booking.",
   },
   socials: {
-    whatsappLink: "https://wa.me/919845983391",
+    whatsappLink: "https://wa.me/917760107520",
     mapLink: "https://www.google.com/maps/search/?api=1&query=RRR+Residency+Kalasipalyam+Bangalore",
-    callPrimaryLink: "tel:+917760107529",
+    callPrimaryLink: "tel:+917760107520",
     callSecondaryLink: "tel:+919845983391",
     emailLink: "mailto:rrrresidencykpm@gmail.com",
   },

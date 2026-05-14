@@ -182,4 +182,4 @@ Read the inline comments in `data/hotel.ts`, `data/rooms.ts` etc. — they're wr
 ---
 
 Built for **RRR Residency**, Kalasipalyam, Bangalore.
-Open 24 hours · +91 7760107529 · rrrresidencykpm@gmail.com
+Open 24 hours · +91 7760107520 · rrrresidencykpm@gmail.com

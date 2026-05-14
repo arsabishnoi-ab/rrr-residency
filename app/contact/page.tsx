@@ -8,7 +8,7 @@ import { buildMetadata, breadcrumbJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: `Contact ${HOTEL.name} — Phone, WhatsApp, Email & Address | Kalasipalyam`,
-  description: `Reach RRR Residency, Kalasipalyam, Bangalore. Call +91 7760107529 (reception, 24h) or +91 9845983391 (owner). Email rrrresidencykpm@gmail.com. ${HOTEL.address.full}.`,
+  description: `Reach RRR Residency, Kalasipalyam, Bangalore. Call or WhatsApp +91 7760107520 (reception, 24h) or call +91 9845983391 (owner). Email rrrresidencykpm@gmail.com. ${HOTEL.address.full}.`,
   path: "/contact",
 });
 
@@ -45,9 +45,9 @@ export default function ContactPage() {
                 <path d="M20.52 3.48A11.95 11.95 0 0 0 12 0C5.37 0 .02 5.35.02 11.97c0 2.11.55 4.15 1.6 5.95L0 24l6.27-1.64a11.94 11.94 0 0 0 5.73 1.46h.01c6.62 0 11.97-5.35 11.97-11.97 0-3.2-1.25-6.2-3.46-8.37z"/>
               </svg>
             </div>
-            <h3 className="mt-4 font-display text-xl font-bold text-ink-900">WhatsApp Owner</h3>
-            <p className="mt-1 text-2xl font-bold text-emerald-700">+91 {HOTEL.contact.phoneSecondary}</p>
-            <p className="text-xs text-ink-500">Tap to chat · Rajkumar (owner)</p>
+            <h3 className="mt-4 font-display text-xl font-bold text-ink-900">WhatsApp</h3>
+            <p className="mt-1 text-2xl font-bold text-emerald-700">+91 {HOTEL.contact.phonePrimary}</p>
+            <p className="text-xs text-ink-500">Tap to chat · same number as reception</p>
           </a>
 
           <a href={HOTEL.socials.emailLink} className="card p-6 hover:shadow-md transition">

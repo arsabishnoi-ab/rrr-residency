@@ -60,7 +60,7 @@ export default function EnquiryForm({
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data?.error || "Something went wrong. Please call us at +91 7760107529.");
+        setError(data?.error || "Something went wrong. Please call us at +91 7760107520.");
         setStatus("error");
 
         const fallback = buildWhatsappFallback(payload as Record<string, string>);
@@ -73,7 +73,7 @@ export default function EnquiryForm({
       setStatus("success");
       form.reset();
     } catch {
-      setError("Network error. Please call +91 7760107529 or message us on WhatsApp.");
+      setError("Network error. Please call +91 7760107520 or message us on WhatsApp.");
       setStatus("error");
       const fallback = buildWhatsappFallback(payload as Record<string, string>);
       setWhatsappFallbackUrl(fallback);

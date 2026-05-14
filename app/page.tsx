@@ -158,8 +158,8 @@ export default function Home() {
                     </svg>
                   </span>
                   <span className="flex-1">
-                    <div className="eyebrow text-ink-500">WhatsApp · Owner</div>
-                    <div className="text-[15px] font-bold text-ink-900">+91 {HOTEL.contact.phoneSecondary}</div>
+                    <div className="eyebrow text-ink-500">WhatsApp · 24h</div>
+                    <div className="text-[15px] font-bold text-ink-900">+91 {HOTEL.contact.phonePrimary}</div>
                   </span>
                 </a>
                 <a href={HOTEL.socials.emailLink} className="flex items-center gap-3 rounded-xl border border-ink-200 px-4 py-3 hover:border-ink-900 transition">

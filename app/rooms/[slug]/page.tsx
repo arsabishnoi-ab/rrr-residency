@@ -166,7 +166,7 @@ export default function RoomDetail({ params }: { params: { slug: string } }) {
                   rel="noopener noreferrer"
                   className="btn-secondary w-full bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100"
                 >
-                  WhatsApp Owner
+                  WhatsApp
                 </a>
               </div>
             </div>

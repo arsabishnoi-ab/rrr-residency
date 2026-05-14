@@ -35,7 +35,7 @@ export const FAQS: FAQ[] = [
   },
   {
     q: "What is the cancellation policy?",
-    a: "All bookings at RRR Residency are non-refundable. Please confirm your travel dates carefully before booking. For any changes, please call us at 7760107529 — we will try our best to help.",
+    a: "All bookings at RRR Residency are non-refundable. Please confirm your travel dates carefully before booking. For any changes, please call us at 7760107520 — we will try our best to help.",
   },
   {
     q: "Do you allow smoking inside the rooms?",

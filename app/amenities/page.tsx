@@ -10,7 +10,7 @@ import { buildMetadata, breadcrumbJsonLd } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: `Hotel Amenities & Facilities | ${HOTEL.name} Kalasipalyam`,
   description:
-    "Full list of amenities at RRR Residency, Kalasipalyam, Bangalore: 24-hour hot water, free Wi-Fi, lift, parking, room service, 24-hour reception, AC rooms, daily housekeeping and more.",
+    "Full list of amenities at RRR Residency, Kalasipalyam, Bangalore: 24-hour hot water, free Wi-Fi, complimentary water bottles, lift to all floors, train/bus/flight ticket help at best fares, parking, room service, 24-hour reception, AC rooms, daily housekeeping and more.",
   path: "/amenities",
 });
 

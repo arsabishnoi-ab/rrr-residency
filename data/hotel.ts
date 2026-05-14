@@ -3,7 +3,7 @@ export const HOTEL = {
   legalName: "RRR Residency",
   tagline: "Comfortable, Clean & Affordable Stay in the Heart of Bangalore",
   shortDescription:
-    "RRR Residency is a 39-room budget-friendly lodge in Kalasipalyam, Bangalore. Walking distance from KR Market, Bangalore Fort, Tipu Sultan's Palace and Kalasipalyam Bus Stand. AC and Non-AC rooms, 24-hour hot water, free Wi-Fi, lift, parking and room service.",
+    "RRR Residency is a 39-room budget-friendly lodge in Kalasipalyam, Bangalore. Walking distance from KR Market, Bangalore Fort, Tipu Sultan's Palace and Kalasipalyam Bus Stand. AC and Non-AC rooms, 24-hour hot water, free Wi-Fi, complimentary water bottles, lift to all floors, parking, room service, and help booking train, bus or flight tickets at competitive fares.",
   owner: "Rajkumar",
   registeredName: "Rajkumar",
   address: {
@@ -38,7 +38,9 @@ export const HOTEL = {
   features: [
     "24-hour hot water",
     "Free high-speed Wi-Fi",
-    "Lift / Elevator",
+    "Complimentary bottled water",
+    "Lift / Elevator (all floors)",
+    "Train, bus & flight ticket assistance",
     "Two-wheeler & four-wheeler parking",
     "24-hour room service",
     "24-hour reception",

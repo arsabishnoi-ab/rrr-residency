@@ -18,9 +18,15 @@ export const AMENITIES: Amenity[] = [
     icon: "wifi",
   },
   {
+    title: "Complimentary Water Bottles",
+    description:
+      "Complimentary bottled drinking water in your room — one less thing to buy after a long bus or train journey.",
+    icon: "water-bottle",
+  },
+  {
     title: "Lift / Elevator",
     description:
-      "Lift access to all floors — no climbing stairs with luggage, comfortable for elderly guests and patient attendants.",
+      "A passenger lift serves every floor, so you can go up and down without the stairs — ideal with heavy bags, for seniors, and for patient attendants.",
     icon: "elevator",
   },
   {
@@ -40,6 +46,12 @@ export const AMENITIES: Amenity[] = [
     description:
       "Check in or check out any time of day. Ideal for early-morning bus arrivals and late-night train arrivals.",
     icon: "clock",
+  },
+  {
+    title: "Train, Bus & Flight Tickets",
+    description:
+      "Tell us where you need to go — we'll book train, bus or flight tickets for you at the best fares we can find. Service arranged through reception.",
+    icon: "tickets",
   },
   {
     title: "AC & Non-AC Rooms",

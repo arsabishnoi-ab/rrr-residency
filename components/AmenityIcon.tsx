@@ -18,6 +18,21 @@ export default function AmenityIcon({ name, className = "" }: { name: string; cl
           <line x1="12" y1="20" x2="12.01" y2="20" />
         </svg>
       );
+    case "water-bottle":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" {...STROKE_PROPS}>
+          <path d="M10 2h4l1 3v2a4 4 0 0 1-4 4 4 4 0 0 1-4-4V5l1-3z" />
+          <path d="M9 11h6v10a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V11z" />
+          <path d="M9 16h6" />
+        </svg>
+      );
+    case "tickets":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" {...STROKE_PROPS}>
+          <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7z" />
+          <path d="M13 5v14" strokeDasharray="2 3" />
+        </svg>
+      );
     case "shower":
       return (
         <svg className={cls} viewBox="0 0 24 24" {...STROKE_PROPS}>

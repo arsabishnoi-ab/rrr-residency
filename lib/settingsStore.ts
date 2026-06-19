@@ -70,8 +70,9 @@ export function defaultSettings(): HotelSettings {
 
 function mergeWithDefaults(partial: Partial<HotelSettings>): HotelSettings {
   const base = defaultSettings();
+  const overrides = Array.isArray(partial.pricing) ? partial.pricing : [];
   const mergedPricing = base.pricing.map((row) => {
-    const override = partial.pricing?.find((p) => p.key === row.key);
+    const override = overrides.find((p) => p.key === row.key);
     return override ? { ...row, ...override } : row;
   });
   return {
@@ -151,8 +152,28 @@ async function writeFileSettings(settings: HotelSettings) {
   await fs.writeFile(FALLBACK_FILE, JSON.stringify(settings, null, 2), "utf8");
 }
 
+function staticMergedVariants(): MergedVariant[] {
+  return ROOMS.flatMap((room) =>
+    room.variants.map((v) => ({
+      roomSlug: room.slug,
+      roomName: room.name,
+      type: v.type,
+      label: v.label,
+      price: v.price,
+      originalPrice: v.originalPrice,
+      discountPercent: v.discountPercent,
+      soldOut: false,
+    }))
+  );
+}
+
 export async function getSettings(): Promise<HotelSettings> {
-  return readFileSettings();
+  try {
+    return await readFileSettings();
+  } catch (err) {
+    console.error("[settingsStore] getSettings failed, using defaults:", err);
+    return defaultSettings();
+  }
 }
 
 export async function saveSettings(patch: Partial<HotelSettings>): Promise<HotelSettings> {
@@ -197,45 +218,55 @@ export type MergedVariant = {
 };
 
 export async function getMergedVariants(): Promise<MergedVariant[]> {
-  const settings = await getSettings();
-  return ROOMS.flatMap((room) =>
-    room.variants.map((v) => {
-      const key = variantKey(room.slug, v.type);
-      const override = settings.pricing.find((p) => p.key === key);
-      const price = override?.price ?? v.price;
-      const originalPrice = override?.originalPrice ?? v.originalPrice;
-      const soldOut = override?.soldOut ?? false;
-      const discountPercent =
-        originalPrice > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
-      return {
-        roomSlug: room.slug,
-        roomName: room.name,
-        type: v.type,
-        label: v.label,
-        price,
-        originalPrice,
-        discountPercent,
-        soldOut,
-      };
-    })
-  );
+  try {
+    const settings = await getSettings();
+    return ROOMS.flatMap((room) =>
+      room.variants.map((v) => {
+        const key = variantKey(room.slug, v.type);
+        const override = settings.pricing.find((p) => p.key === key);
+        const price = override?.price ?? v.price;
+        const originalPrice = override?.originalPrice ?? v.originalPrice;
+        const soldOut = override?.soldOut ?? false;
+        const discountPercent =
+          originalPrice > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+        return {
+          roomSlug: room.slug,
+          roomName: room.name,
+          type: v.type,
+          label: v.label,
+          price,
+          originalPrice,
+          discountPercent,
+          soldOut,
+        };
+      })
+    );
+  } catch (err) {
+    console.error("[settingsStore] getMergedVariants failed, using static prices:", err);
+    return staticMergedVariants();
+  }
 }
 
 export async function getMergedRooms(): Promise<RoomCategory[]> {
-  const variants = await getMergedVariants();
-  return ROOMS.map((room) => ({
-    ...room,
-    variants: room.variants.map((v) => {
-      const merged = variants.find((m) => m.roomSlug === room.slug && m.type === v.type)!;
-      return {
-        type: v.type,
-        label: v.label,
-        price: merged.price,
-        originalPrice: merged.originalPrice,
-        discountPercent: merged.discountPercent,
-      };
-    }),
-  }));
+  try {
+    const variants = await getMergedVariants();
+    return ROOMS.map((room) => ({
+      ...room,
+      variants: room.variants.map((v) => {
+        const merged = variants.find((m) => m.roomSlug === room.slug && m.type === v.type);
+        return {
+          type: v.type,
+          label: v.label,
+          price: merged?.price ?? v.price,
+          originalPrice: merged?.originalPrice ?? v.originalPrice,
+          discountPercent: merged?.discountPercent ?? v.discountPercent,
+        };
+      }),
+    }));
+  } catch (err) {
+    console.error("[settingsStore] getMergedRooms failed, using static rooms:", err);
+    return ROOMS;
+  }
 }
 
 export async function getMergedRoom(slug: string): Promise<RoomCategory | undefined> {
@@ -244,11 +275,17 @@ export async function getMergedRoom(slug: string): Promise<RoomCategory | undefi
 }
 
 export async function getMinMaxPrice(): Promise<{ min: number; max: number }> {
-  const variants = await getMergedVariants();
-  const bookable = variants.filter((v) => !v.soldOut);
-  const prices = (bookable.length > 0 ? bookable : variants).map((v) => v.price);
-  return {
-    min: Math.min(...prices),
-    max: Math.max(...prices),
-  };
+  try {
+    const variants = await getMergedVariants();
+    const bookable = variants.filter((v) => !v.soldOut);
+    const prices = (bookable.length > 0 ? bookable : variants).map((v) => v.price);
+    return {
+      min: Math.min(...prices),
+      max: Math.max(...prices),
+    };
+  } catch {
+    const variants = staticMergedVariants();
+    const prices = variants.map((v) => v.price);
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+  }
 }

@@ -91,14 +91,22 @@ export async function createLead(input: LeadInsert): Promise<LeadRow> {
 
 export async function listLeads(): Promise<LeadRow[]> {
   if (hasSupabase()) {
-    const supabase = getSupabaseAdmin();
-    if (supabase) {
-      const { data, error } = await supabase
-        .from("leads")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw new Error(`Supabase: ${error.message}`);
-      return (data ?? []) as LeadRow[];
+    try {
+      const supabase = getSupabaseAdmin();
+      if (supabase) {
+        const { data, error } = await supabase
+          .from("leads")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) {
+          console.error("[leadStore] Supabase list failed:", error.message);
+          return readFileLeads();
+        }
+        return (data ?? []) as LeadRow[];
+      }
+    } catch (err) {
+      console.error("[leadStore] Supabase list error:", err);
+      return readFileLeads();
     }
   }
   return readFileLeads();

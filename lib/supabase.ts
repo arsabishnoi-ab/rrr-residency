@@ -7,8 +7,11 @@ let cached: SupabaseClient | null = null;
  * Users often paste `.../rest/v1` from the Data API screen — that breaks saves.
  */
 export function getSupabaseUrl(): string | null {
-  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  let raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   if (!raw) return null;
+
+  // Vercel copy/paste sometimes includes wrapping quotes
+  raw = raw.replace(/^["']|["']$/g, "");
 
   try {
     const withProtocol = raw.startsWith("http") ? raw : `https://${raw}`;
@@ -23,11 +26,11 @@ export function getSupabaseUrl(): string | null {
 }
 
 export function getSupabaseServiceKey(): string | null {
-  return (
+  const raw =
     process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
     process.env.SUPABASE_SECRET_KEY?.trim() ||
-    null
-  );
+    null;
+  return raw ? raw.replace(/^["']|["']$/g, "") : null;
 }
 
 export function getSupabaseAdmin(): SupabaseClient | null {
@@ -43,4 +46,50 @@ export function getSupabaseAdmin(): SupabaseClient | null {
 
 export function hasSupabase(): boolean {
   return Boolean(getSupabaseUrl() && getSupabaseServiceKey());
+}
+
+/** Admin-only: test whether hotel_settings is reachable (no secrets returned). */
+export async function diagnoseSupabaseSettings(): Promise<{
+  configured: boolean;
+  urlHost: string | null;
+  tableOk: boolean;
+  hint: string | null;
+}> {
+  const url = getSupabaseUrl();
+  const key = getSupabaseServiceKey();
+  if (!url || !key) {
+    return {
+      configured: false,
+      urlHost: url ? new URL(url).host : null,
+      tableOk: false,
+      hint: "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in Vercel.",
+    };
+  }
+
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    return {
+      configured: false,
+      urlHost: new URL(url).host,
+      tableOk: false,
+      hint: "URL must be https://YOUR-REF.supabase.co (not a key).",
+    };
+  }
+
+  const { error } = await supabase
+    .schema("public")
+    .from("hotel_settings")
+    .select("id")
+    .limit(1);
+
+  if (error) {
+    return {
+      configured: true,
+      urlHost: new URL(url).host,
+      tableOk: false,
+      hint: error.message,
+    };
+  }
+
+  return { configured: true, urlHost: new URL(url).host, tableOk: true, hint: null };
 }

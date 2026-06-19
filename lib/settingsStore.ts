@@ -92,6 +92,7 @@ async function readSupabaseSettings(): Promise<HotelSettings | null> {
 
   try {
     const { data, error } = await supabase
+      .schema("public")
       .from("hotel_settings")
       .select("data")
       .eq("id", SETTINGS_ROW_ID)
@@ -113,7 +114,7 @@ async function writeSupabaseSettings(settings: HotelSettings) {
   const supabase = getSupabaseAdmin();
   if (!supabase) throw new Error("Supabase not configured");
 
-  const { error } = await supabase.from("hotel_settings").upsert(
+  const { error } = await supabase.schema("public").from("hotel_settings").upsert(
     {
       id: SETTINGS_ROW_ID,
       data: settings,
@@ -123,20 +124,26 @@ async function writeSupabaseSettings(settings: HotelSettings) {
   );
 
   if (error) {
-    console.error("[settingsStore] Supabase write failed:", error.message);
+    console.error("[settingsStore] Supabase write failed:", error.message, error);
     const msg = error.message.toLowerCase();
-    if (msg.includes("hotel_settings") || msg.includes("does not exist") || msg.includes("schema cache")) {
+    if (
+      msg.includes("hotel_settings") ||
+      msg.includes("does not exist") ||
+      msg.includes("schema cache") ||
+      msg.includes("could not find the table")
+    ) {
       throw new Error(
-        "Pricing table missing in Supabase. Open SQL Editor and run the hotel_settings block from supabase/schema.sql."
+        "Pricing table missing in Supabase. SQL Editor → run the hotel_settings SQL, then run: NOTIFY pgrst, 'reload schema';"
       );
     }
     if (msg.includes("invalid path") || msg.includes("pgrst125")) {
       throw new Error(
-        "Invalid Supabase URL in Vercel. Set NEXT_PUBLIC_SUPABASE_URL to only https://YOUR-PROJECT.supabase.co (no /rest/v1 or other path)."
+        "Supabase cannot reach hotel_settings. Confirm the table exists in THIS project (Table Editor), URL is https://YOUR-REF.supabase.co, and redeploy after env changes."
       );
     }
+    if (msg.includes("invalid api key") || msg.includes("jwt")) {
       throw new Error(
-        "Invalid Supabase secret key. In Vercel use SUPABASE_SERVICE_ROLE_KEY with the legacy service_role (eyJ...) or new sb_secret_ key — not the publishable key."
+        "Invalid Supabase secret key. Use legacy service_role (eyJ...) or sb_secret_ in SUPABASE_SERVICE_ROLE_KEY — not the publishable key."
       );
     }
     throw new Error(`Supabase save failed: ${error.message}`);

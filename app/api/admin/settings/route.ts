@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { isAdminAuthed } from "@/lib/adminAuth";
 import { ROOMS } from "@/data/rooms";
 import { getSettings, saveSettings, type HotelSettings } from "@/lib/settingsStore";
+import { diagnoseSupabaseSettings } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const settings = await getSettings();
-  return NextResponse.json(settings);
+  const supabase = await diagnoseSupabaseSettings();
+  return NextResponse.json({ ...settings, _supabase: supabase });
 }
 
 export async function PATCH(req: Request) {

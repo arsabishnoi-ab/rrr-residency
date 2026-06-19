@@ -89,15 +89,23 @@ async function readSupabaseSettings(): Promise<HotelSettings | null> {
   const supabase = getSupabaseAdmin();
   if (!supabase) return null;
 
-  const { data, error } = await supabase
-    .from("hotel_settings")
-    .select("data")
-    .eq("id", SETTINGS_ROW_ID)
-    .maybeSingle();
+  try {
+    const { data, error } = await supabase
+      .from("hotel_settings")
+      .select("data")
+      .eq("id", SETTINGS_ROW_ID)
+      .maybeSingle();
 
-  if (error) throw new Error(`Supabase: ${error.message}`);
-  if (!data?.data) return null;
-  return mergeWithDefaults(data.data as Partial<HotelSettings>);
+    if (error) {
+      console.error("[settingsStore] Supabase read failed:", error.message);
+      return null;
+    }
+    if (!data?.data) return null;
+    return mergeWithDefaults(data.data as Partial<HotelSettings>);
+  } catch (err) {
+    console.error("[settingsStore] Supabase read error:", err);
+    return null;
+  }
 }
 
 async function writeSupabaseSettings(settings: HotelSettings) {
@@ -110,7 +118,14 @@ async function writeSupabaseSettings(settings: HotelSettings) {
     updated_at: settings.updatedAt,
   });
 
-  if (error) throw new Error(`Supabase: ${error.message}`);
+  if (error) {
+    console.error("[settingsStore] Supabase write failed:", error.message);
+    throw new Error(
+      error.message.includes("hotel_settings")
+        ? "Could not save pricing — run the hotel_settings SQL in Supabase (see supabase/schema.sql)."
+        : `Supabase: ${error.message}`
+    );
+  }
 }
 
 async function readFileSettings(): Promise<HotelSettings> {

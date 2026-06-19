@@ -130,7 +130,11 @@ async function writeSupabaseSettings(settings: HotelSettings) {
         "Pricing table missing in Supabase. Open SQL Editor and run the hotel_settings block from supabase/schema.sql."
       );
     }
-    if (msg.includes("invalid api key") || msg.includes("jwt")) {
+    if (msg.includes("invalid path") || msg.includes("pgrst125")) {
+      throw new Error(
+        "Invalid Supabase URL in Vercel. Set NEXT_PUBLIC_SUPABASE_URL to only https://YOUR-PROJECT.supabase.co (no /rest/v1 or other path)."
+      );
+    }
       throw new Error(
         "Invalid Supabase secret key. In Vercel use SUPABASE_SERVICE_ROLE_KEY with the legacy service_role (eyJ...) or new sb_secret_ key — not the publishable key."
       );

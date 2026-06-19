@@ -2,11 +2,24 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 let cached: SupabaseClient | null = null;
 
+/**
+ * Normalizes Supabase project URL to `https://<ref>.supabase.co` only.
+ * Users often paste `.../rest/v1` from the Data API screen — that breaks saves.
+ */
 export function getSupabaseUrl(): string | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  if (!url) return null;
-  if (!url.includes("supabase.co")) return null;
-  return url.replace(/\/$/, "");
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (!raw) return null;
+
+  try {
+    const withProtocol = raw.startsWith("http") ? raw : `https://${raw}`;
+    const parsed = new URL(withProtocol);
+
+    if (!parsed.hostname.endsWith("supabase.co")) return null;
+
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return null;
+  }
 }
 
 export function getSupabaseServiceKey(): string | null {

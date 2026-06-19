@@ -25,11 +25,13 @@ export default async function PricingPage() {
 
       {!supabaseConnected && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Supabase is not connected — price changes may not persist on Vercel after a redeploy.
-          Add <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-          <code className="rounded bg-amber-100 px-1">SUPABASE_SERVICE_ROLE_KEY</code>, then run the{" "}
-          <code className="rounded bg-amber-100 px-1">hotel_settings</code> SQL from{" "}
-          <code className="rounded bg-amber-100 px-1">supabase/schema.sql</code>.
+          Supabase is not connected. In Vercel add{" "}
+          <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_SUPABASE_URL</code> (must be{" "}
+          <code className="rounded bg-amber-100 px-1">https://xxxx.supabase.co</code>, not a key) and{" "}
+          <code className="rounded bg-amber-100 px-1">SUPABASE_SERVICE_ROLE_KEY</code> (secret or
+          legacy service_role — not publishable). Run the{" "}
+          <code className="rounded bg-amber-100 px-1">hotel_settings</code> SQL in Supabase, then
+          redeploy.
         </div>
       )}
 

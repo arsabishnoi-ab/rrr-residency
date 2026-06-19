@@ -24,12 +24,18 @@ export async function PATCH(req: Request) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  const next = await saveSettings(body);
-  revalidatePath("/", "layout");
-  revalidatePath("/rooms");
-  revalidatePath("/book");
-  for (const room of ROOMS) {
-    revalidatePath(`/rooms/${room.slug}`);
+  try {
+    const next = await saveSettings(body);
+    revalidatePath("/", "layout");
+    revalidatePath("/rooms");
+    revalidatePath("/book");
+    for (const room of ROOMS) {
+      revalidatePath(`/rooms/${room.slug}`);
+    }
+    return NextResponse.json(next);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to save settings";
+    console.error("[api/admin/settings] PATCH failed:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-  return NextResponse.json(next);
 }

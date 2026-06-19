@@ -113,19 +113,29 @@ async function writeSupabaseSettings(settings: HotelSettings) {
   const supabase = getSupabaseAdmin();
   if (!supabase) throw new Error("Supabase not configured");
 
-  const { error } = await supabase.from("hotel_settings").upsert({
-    id: SETTINGS_ROW_ID,
-    data: settings,
-    updated_at: settings.updatedAt,
-  });
+  const { error } = await supabase.from("hotel_settings").upsert(
+    {
+      id: SETTINGS_ROW_ID,
+      data: settings,
+      updated_at: settings.updatedAt,
+    },
+    { onConflict: "id" }
+  );
 
   if (error) {
     console.error("[settingsStore] Supabase write failed:", error.message);
-    throw new Error(
-      error.message.includes("hotel_settings")
-        ? "Could not save pricing — run the hotel_settings SQL in Supabase (see supabase/schema.sql)."
-        : `Supabase: ${error.message}`
-    );
+    const msg = error.message.toLowerCase();
+    if (msg.includes("hotel_settings") || msg.includes("does not exist") || msg.includes("schema cache")) {
+      throw new Error(
+        "Pricing table missing in Supabase. Open SQL Editor and run the hotel_settings block from supabase/schema.sql."
+      );
+    }
+    if (msg.includes("invalid api key") || msg.includes("jwt")) {
+      throw new Error(
+        "Invalid Supabase secret key. In Vercel use SUPABASE_SERVICE_ROLE_KEY with the legacy service_role (eyJ...) or new sb_secret_ key — not the publishable key."
+      );
+    }
+    throw new Error(`Supabase save failed: ${error.message}`);
   }
 }
 

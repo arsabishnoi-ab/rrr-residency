@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { isAdminAuthed } from "@/lib/adminAuth";
+import { ROOMS } from "@/data/rooms";
 import { getSettings, saveSettings, type HotelSettings } from "@/lib/settingsStore";
 
 export const dynamic = "force-dynamic";
@@ -23,5 +25,11 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const next = await saveSettings(body);
+  revalidatePath("/", "layout");
+  revalidatePath("/rooms");
+  revalidatePath("/book");
+  for (const room of ROOMS) {
+    revalidatePath(`/rooms/${room.slug}`);
+  }
   return NextResponse.json(next);
 }

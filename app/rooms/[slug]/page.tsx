@@ -5,10 +5,13 @@ import Link from "next/link";
 import Section from "@/components/Section";
 import EnquiryForm from "@/components/EnquiryForm";
 import JsonLd from "@/components/JsonLd";
-import { ROOMS, getRoom, RoomCategory } from "@/data/rooms";
+import { ROOMS, getRoom, type RoomCategory } from "@/data/rooms";
 import { HOTEL, SITE_URL } from "@/data/hotel";
+import { getMergedRoom, getMergedRooms } from "@/lib/settingsStore";
 import { buildMetadata, breadcrumbJsonLd } from "@/lib/seo";
 import { ROOM_TYPES } from "@/lib/leadSchema";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return ROOMS.map((r) => ({ slug: r.slug }));
@@ -29,8 +32,11 @@ export function generateMetadata({
   });
 }
 
-export default function RoomDetail({ params }: { params: { slug: string } }) {
-  const room = getRoom(params.slug);
+export default async function RoomDetail({ params }: { params: { slug: string } }) {
+  const [room, allRooms] = await Promise.all([
+    getMergedRoom(params.slug),
+    getMergedRooms(),
+  ]);
   if (!room) notFound();
 
   const minPrice = Math.min(...room.variants.map((v) => v.price));
@@ -173,7 +179,7 @@ export default function RoomDetail({ params }: { params: { slug: string } }) {
             <div className="card p-5">
               <h3 className="font-display text-lg font-bold text-ink-900">Other room sizes</h3>
               <ul className="mt-3 space-y-2">
-                {ROOMS.filter((r) => r.slug !== room.slug).map((r) => (
+                {allRooms.filter((r) => r.slug !== room.slug).map((r) => (
                   <li key={r.slug}>
                     <Link
                       href={`/rooms/${r.slug}`}

@@ -4,9 +4,11 @@ import Section from "@/components/Section";
 import RoomCard from "@/components/RoomCard";
 import EnquiryForm from "@/components/EnquiryForm";
 import JsonLd from "@/components/JsonLd";
-import { ROOMS, ALL_VARIANTS } from "@/data/rooms";
 import { HOTEL } from "@/data/hotel";
+import { getMergedRooms, getMergedVariants } from "@/lib/settingsStore";
 import { buildMetadata, breadcrumbJsonLd } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: `Rooms & Tariff — AC & Non-AC Rooms from ₹1200 | ${HOTEL.name}`,
@@ -15,7 +17,9 @@ export const metadata: Metadata = buildMetadata({
   path: "/rooms",
 });
 
-export default function RoomsHubPage() {
+export default async function RoomsHubPage() {
+  const [rooms, variants] = await Promise.all([getMergedRooms(), getMergedVariants()]);
+
   return (
     <>
       <JsonLd
@@ -32,7 +36,7 @@ export default function RoomsHubPage() {
         className="bg-white"
       >
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {ROOMS.map((r) => (
+          {rooms.map((r) => (
             <RoomCard key={r.slug} room={r} />
           ))}
         </div>
@@ -57,8 +61,8 @@ export default function RoomsHubPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5">
-                {ALL_VARIANTS.map((v) => {
-                  const room = ROOMS.find((r) => r.slug === v.roomSlug)!;
+                {variants.map((v) => {
+                  const room = rooms.find((r) => r.slug === v.roomSlug)!;
                   return (
                     <tr key={`${v.roomSlug}-${v.type}`} className="bg-white hover:bg-ink-100/40">
                       <td className="px-4 py-3 font-semibold text-ink-900">

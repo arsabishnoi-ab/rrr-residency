@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import { ROOMS } from "@/data/rooms";
+import { ROOMS, type RoomCategory } from "@/data/rooms";
+import { getSupabaseAdmin, hasSupabase } from "@/lib/supabase";
 
 export type VariantOverride = {
   /** Composite key: `${roomSlug}__${variantType}` (e.g. "double-room__ac") */
@@ -38,6 +39,7 @@ export type HotelSettings = {
   updatedAt: string;
 };
 
+const SETTINGS_ROW_ID = "default";
 const FALLBACK_FILE = path.join(os.tmpdir(), "rrr-residency-settings.json");
 
 function variantKey(slug: string, type: "ac" | "non-ac") {
@@ -66,20 +68,6 @@ export function defaultSettings(): HotelSettings {
   };
 }
 
-async function readFile(): Promise<HotelSettings> {
-  try {
-    const raw = await fs.readFile(FALLBACK_FILE, "utf8");
-    const parsed = JSON.parse(raw) as Partial<HotelSettings>;
-    return mergeWithDefaults(parsed);
-  } catch {
-    return defaultSettings();
-  }
-}
-
-async function writeFile(s: HotelSettings) {
-  await fs.writeFile(FALLBACK_FILE, JSON.stringify(s, null, 2), "utf8");
-}
-
 function mergeWithDefaults(partial: Partial<HotelSettings>): HotelSettings {
   const base = defaultSettings();
   const mergedPricing = base.pricing.map((row) => {
@@ -96,12 +84,64 @@ function mergeWithDefaults(partial: Partial<HotelSettings>): HotelSettings {
   };
 }
 
+async function readSupabaseSettings(): Promise<HotelSettings | null> {
+  if (!hasSupabase()) return null;
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("hotel_settings")
+    .select("data")
+    .eq("id", SETTINGS_ROW_ID)
+    .maybeSingle();
+
+  if (error) throw new Error(`Supabase: ${error.message}`);
+  if (!data?.data) return null;
+  return mergeWithDefaults(data.data as Partial<HotelSettings>);
+}
+
+async function writeSupabaseSettings(settings: HotelSettings) {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) throw new Error("Supabase not configured");
+
+  const { error } = await supabase.from("hotel_settings").upsert({
+    id: SETTINGS_ROW_ID,
+    data: settings,
+    updated_at: settings.updatedAt,
+  });
+
+  if (error) throw new Error(`Supabase: ${error.message}`);
+}
+
+async function readFileSettings(): Promise<HotelSettings> {
+  if (hasSupabase()) {
+    const fromDb = await readSupabaseSettings();
+    if (fromDb) return fromDb;
+  }
+
+  try {
+    const raw = await fs.readFile(FALLBACK_FILE, "utf8");
+    const parsed = JSON.parse(raw) as Partial<HotelSettings>;
+    return mergeWithDefaults(parsed);
+  } catch {
+    return defaultSettings();
+  }
+}
+
+async function writeFileSettings(settings: HotelSettings) {
+  if (hasSupabase()) {
+    await writeSupabaseSettings(settings);
+    return;
+  }
+  await fs.writeFile(FALLBACK_FILE, JSON.stringify(settings, null, 2), "utf8");
+}
+
 export async function getSettings(): Promise<HotelSettings> {
-  return readFile();
+  return readFileSettings();
 }
 
 export async function saveSettings(patch: Partial<HotelSettings>): Promise<HotelSettings> {
-  const current = await readFile();
+  const current = await readFileSettings();
   const next: HotelSettings = {
     ...current,
     ...patch,
@@ -117,7 +157,7 @@ export async function saveSettings(patch: Partial<HotelSettings>): Promise<Hotel
       typeof patch.inventoryCap === "number" ? patch.inventoryCap : current.inventoryCap,
     updatedAt: new Date().toISOString(),
   };
-  await writeFile(next);
+  await writeFileSettings(next);
   return next;
 }
 
@@ -164,4 +204,36 @@ export async function getMergedVariants(): Promise<MergedVariant[]> {
       };
     })
   );
+}
+
+export async function getMergedRooms(): Promise<RoomCategory[]> {
+  const variants = await getMergedVariants();
+  return ROOMS.map((room) => ({
+    ...room,
+    variants: room.variants.map((v) => {
+      const merged = variants.find((m) => m.roomSlug === room.slug && m.type === v.type)!;
+      return {
+        type: v.type,
+        label: v.label,
+        price: merged.price,
+        originalPrice: merged.originalPrice,
+        discountPercent: merged.discountPercent,
+      };
+    }),
+  }));
+}
+
+export async function getMergedRoom(slug: string): Promise<RoomCategory | undefined> {
+  const rooms = await getMergedRooms();
+  return rooms.find((r) => r.slug === slug);
+}
+
+export async function getMinMaxPrice(): Promise<{ min: number; max: number }> {
+  const variants = await getMergedVariants();
+  const bookable = variants.filter((v) => !v.soldOut);
+  const prices = (bookable.length > 0 ? bookable : variants).map((v) => v.price);
+  return {
+    min: Math.min(...prices),
+    max: Math.max(...prices),
+  };
 }

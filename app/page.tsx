@@ -12,11 +12,13 @@ import JsonLd from "@/components/JsonLd";
 import LazyMap from "@/components/LazyMap";
 import Reveal, { StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { HOTEL } from "@/data/hotel";
-import { ROOMS } from "@/data/rooms";
 import { NEARBY } from "@/data/nearby";
 import { AMENITIES } from "@/data/amenities";
 import { FAQS } from "@/data/faqs";
+import { getMergedRooms, getMinMaxPrice } from "@/lib/settingsStore";
 import { buildMetadata, faqJsonLd } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: `${HOTEL.name} | Budget Hotel in Kalasipalyam, Bangalore — AC & Non-AC Rooms from ₹1200`,
@@ -31,14 +33,16 @@ const USPS = [
   { t: "24/7 reception", d: "Arrive any time, day or night. A clean room and hot water always waiting." },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const [rooms, { min: minPrice }] = await Promise.all([getMergedRooms(), getMinMaxPrice()]);
+
   return (
     <>
       <JsonLd data={faqJsonLd(FAQS.slice(0, 8))} />
 
       <Hero />
       <PriceMarquee />
-      <BrandIntro />
+      <BrandIntro minPrice={minPrice} />
 
       {/* USPs - clean grid */}
       <section className="bg-ink-25 py-12 sm:py-16 border-y border-ink-100">
@@ -63,7 +67,7 @@ export default function Home() {
         description="Same prices for everyone, every season. Book direct on this site and save more than what MakeMyTrip or Goibibo would charge."
       >
         <StaggerGroup className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {ROOMS.map((r) => (
+          {rooms.map((r) => (
             <StaggerItem key={r.slug}>
               <RoomCard room={r} />
             </StaggerItem>

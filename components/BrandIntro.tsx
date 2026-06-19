@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { HOTEL } from "@/data/hotel";
-import { MIN_PRICE } from "@/data/rooms";
 
-export default function BrandIntro() {
+export default function BrandIntro({ minPrice }: { minPrice: number }) {
   return (
     <section className="relative bg-white py-16 sm:py-24">
       <div className="container-pad">
@@ -25,7 +24,7 @@ export default function BrandIntro() {
 
             <p className="mt-5 max-w-2xl mx-auto text-lg text-ink-500 leading-relaxed">
               39 rooms · AC & Non-AC · from{" "}
-              <span className="font-bold text-ink-900">₹{MIN_PRICE}/night</span>.
+              <span className="font-bold text-ink-900">₹{minPrice}/night</span>.
               4-minute walk from KR Market. Free Wi-Fi, 24-hour hot water, lift,
               parking — and a reception that's never closed.
             </p>

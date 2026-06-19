@@ -4,8 +4,10 @@ import EnquiryForm from "@/components/EnquiryForm";
 import JsonLd from "@/components/JsonLd";
 import { HOTEL } from "@/data/hotel";
 import { ROOM_TYPES } from "@/lib/leadSchema";
+import { getMergedRooms } from "@/lib/settingsStore";
 import { buildMetadata, breadcrumbJsonLd } from "@/lib/seo";
-import { ROOMS } from "@/data/rooms";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: `Book a Room at ${HOTEL.name} — AC & Non-AC from ₹1200 | Kalasipalyam Bangalore`,
@@ -14,11 +16,12 @@ export const metadata: Metadata = buildMetadata({
   path: "/book",
 });
 
-export default function BookPage({
+export default async function BookPage({
   searchParams,
 }: {
   searchParams: { room?: string };
 }) {
+  const rooms = await getMergedRooms();
   const incoming = (searchParams?.room ?? "") as (typeof ROOM_TYPES)[number];
   const defaultRoom = ROOM_TYPES.includes(incoming) ? incoming : "Not Sure";
 
@@ -50,7 +53,7 @@ export default function BookPage({
             <div className="card p-5">
               <h3 className="font-display text-xl font-bold text-ink-900">Tariff at a glance</h3>
               <ul className="mt-3 divide-y divide-black/5">
-                {ROOMS.map((r) => {
+                {rooms.map((r) => {
                   const min = Math.min(...r.variants.map((v) => v.price));
                   return (
                     <li key={r.slug} className="flex items-center justify-between py-2.5">

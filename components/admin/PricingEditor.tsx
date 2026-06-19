@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Save, RefreshCw, AlertCircle } from "lucide-react";
 import type { HotelSettings, VariantOverride } from "@/lib/settingsStore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -42,6 +43,7 @@ function buildRows(s: HotelSettings): Row[] {
 }
 
 export default function PricingEditor({ initial }: { initial: HotelSettings }) {
+  const router = useRouter();
   const [rows, setRows] = React.useState<Row[]>(() => buildRows(initial));
   const [surge, setSurge] = React.useState(initial.surge);
   const [saving, setSaving] = React.useState(false);
@@ -83,6 +85,7 @@ export default function PricingEditor({ initial }: { initial: HotelSettings }) {
       const next = (await res.json()) as HotelSettings;
       setSavedAt(next.updatedAt);
       setDirty(false);
+      router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save");
     } finally {

@@ -7,9 +7,11 @@ import EnquiryForm from "@/components/EnquiryForm";
 import RoomCard from "@/components/RoomCard";
 import JsonLd from "@/components/JsonLd";
 import { NEARBY, getNearby } from "@/data/nearby";
-import { ROOMS, MIN_PRICE } from "@/data/rooms";
 import { HOTEL, SITE_URL } from "@/data/hotel";
+import { getMergedRooms, getMinMaxPrice } from "@/lib/settingsStore";
 import { buildMetadata, breadcrumbJsonLd } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return NEARBY.map((p) => ({ slug: p.slug }));
@@ -29,10 +31,11 @@ export function generateMetadata({
   });
 }
 
-export default function NearbyDetailPage({ params }: { params: { slug: string } }) {
+export default async function NearbyDetailPage({ params }: { params: { slug: string } }) {
   const place = getNearby(params.slug);
   if (!place) notFound();
 
+  const [rooms, { min: minPrice }] = await Promise.all([getMergedRooms(), getMinMaxPrice()]);
   const others = NEARBY.filter((p) => p.slug !== place.slug);
 
   return (
@@ -76,7 +79,7 @@ export default function NearbyDetailPage({ params }: { params: { slug: string } 
                 <span className="chip">{place.distanceKm} km away</span>
                 {place.walkingMinutes && <span className="chip">~{place.walkingMinutes} min walk</span>}
                 {place.drivingMinutes && <span className="chip">~{place.drivingMinutes} min by auto</span>}
-                <span className="chip bg-emerald-50 text-emerald-700">From ₹{MIN_PRICE}/night</span>
+                <span className="chip bg-emerald-50 text-emerald-700">From ₹{minPrice}/night</span>
               </div>
               <div className="mt-6 flex flex-wrap gap-2">
                 <Link href="/book" className="btn-primary">Book a room</Link>
@@ -129,7 +132,7 @@ export default function NearbyDetailPage({ params }: { params: { slug: string } 
                 <div className="mt-3 grid grid-cols-3 gap-2 text-center">
                   <Stat n="39" l="Rooms" />
                   <Stat n="24h" l="Reception" />
-                  <Stat n="₹1200" l="From" />
+                  <Stat n={`₹${minPrice}`} l="From" />
                 </div>
               </div>
             </div>
@@ -139,7 +142,7 @@ export default function NearbyDetailPage({ params }: { params: { slug: string } 
 
       <Section eyebrow="Pick your room" title="Available room categories" className="bg-white">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {ROOMS.map((r) => <RoomCard key={r.slug} room={r} />)}
+          {rooms.map((r) => <RoomCard key={r.slug} room={r} />)}
         </div>
       </Section>
 

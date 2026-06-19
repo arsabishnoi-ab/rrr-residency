@@ -36,6 +36,16 @@ create table if not exists public.hotel_settings (
 
 alter table public.hotel_settings enable row level security;
 
+-- Block browser/anon access. The website uses the service_role / secret key
+-- on the server only — that role bypasses RLS and can read/write this table.
+drop policy if exists "hotel_settings block anon and authenticated" on public.hotel_settings;
+create policy "hotel_settings block anon and authenticated"
+  on public.hotel_settings
+  for all
+  to anon, authenticated
+  using (false)
+  with check (false);
+
 -- The website talks to this table only via the service role key from
 -- a server-side API route, so RLS just locks down all anonymous access.
 alter table public.leads enable row level security;
